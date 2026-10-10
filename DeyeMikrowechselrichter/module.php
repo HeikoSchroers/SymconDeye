@@ -21,7 +21,7 @@ declare(strict_types=1);
  *    Werte stehen; nach einer Weile ohne Antwort setzt das Modul die
  *    Leistungen auf 0 (die Abendleistung waere sonst die ganze Nacht da).
  */
-class DeyeMicroinverter extends IPSModule
+class DeyeMikrowechselrichter extends IPSModule
 {
     private const SOLARMAN_GATEWAY = '{CAA0055F-135C-4BCB-A952-D42190C25CEC}';
     private const MODBUS_TX = '{E310B701-4AE7-458E-B618-EC13A1A6F6A8}';
