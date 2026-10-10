@@ -230,16 +230,42 @@ trait VerbindungKette
      */
     private function uebernimmAusKette(int $gw, int $so): void
     {
-        $werte = [
-            'Host' => trim((string) IPS_GetProperty($so, 'Host')),
-            'Port' => (int) IPS_GetProperty($so, 'Port'),
-            'Open' => (bool) IPS_GetProperty($so, 'Open'),
-        ];
+        // Gateway oder Socket koennen gerade selbst neu geladen werden, etwa
+        // wenn das Gateway zur selben Bibliothek gehoert (Deye/Solarman). Dann
+        // liefert IPS_GetProperty() false statt des Werts. Deshalb jeden Wert
+        // auf seinen Typ pruefen und lieber spaeter erneut versuchen als
+        // "False" als Seriennummer zu uebernehmen.
+        $erwartet = ['Host' => 'string', 'Port' => 'integer', 'Open' => 'boolean'];
+        $werte = [];
+        foreach ($erwartet as $name => $typ) {
+            $werte[$name] = @IPS_GetProperty($so, $name);
+        }
         foreach (array_keys($this->gatewayWerte($gw)) as $name) {
             if ($name !== 'GatewayMode') {
-                $werte[$name] = IPS_GetProperty($gw, $name);
+                $erwartet[$name] = $name === 'LoggerSerial' ? 'string' : 'integer';
+                $werte[$name] = @IPS_GetProperty($gw, $name);
             }
         }
+        $falsch = [];
+        foreach ($erwartet as $name => $typ) {
+            if (gettype($werte[$name]) !== $typ) {
+                $falsch[] = $name;
+            }
+        }
+        if ($falsch !== []) {
+            $versuch = (int) $this->GetBuffer('VerbindungVersuch') + 1;
+            $this->SetBuffer('VerbindungVersuch', (string) $versuch);
+            $this->SendDebug('Verbindung', sprintf('Gateway/Socket noch nicht bereit (%s), Versuch %d', implode(', ', $falsch), $versuch), 0);
+            if ($versuch <= 5) {
+                $this->RegisterOnceTimer('VerbindungUebernahme', sprintf('IPS_Sleep(2000); IPS_ApplyChanges(%d);', $this->InstanceID));
+            }
+            return;
+        }
+        $werte['Host'] = trim($werte['Host']);
+        if (isset($werte['LoggerSerial'])) {
+            $werte['LoggerSerial'] = trim($werte['LoggerSerial']);
+        }
+        $this->SetBuffer('VerbindungVersuch', '0');
         $skript = '';
         foreach ($werte as $name => $wert) {
             $skript .= sprintf('IPS_SetProperty(%d, %s, %s);', $this->InstanceID, var_export($name, true), var_export($wert, true));
@@ -254,7 +280,13 @@ trait VerbindungKette
     {
         $geaendert = [];
         foreach ($werte as $name => $neu) {
-            $alt = IPS_GetProperty($id, $name);
+            $alt = @IPS_GetProperty($id, $name);
+            if ($alt === false && !is_bool($neu)) {
+                // Instanz wird gerade neu geladen (s. uebernimmAusKette): nichts
+                // anfassen, ihre gespeicherten Werte bleiben ohnehin erhalten.
+                $this->SendDebug('Verbindung', sprintf('#%d noch nicht bereit, übersprungen', $id), 0);
+                return;
+            }
             settype($alt, gettype($neu));
             if ($alt !== $neu) {
                 IPS_SetProperty($id, $name, $neu);
