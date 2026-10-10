@@ -1,0 +1,12 @@
+{
+    "id": "{E49D01FE-9011-495B-9AA1-2AE3D53ED08D}",
+    "name": "SymconDeye",
+    "author": "Heiko Schrörs",
+    "url": "https://github.com/HeikoSchroers/SymconDeye",
+    "compatibility": {
+        "version": "8.0"
+    },
+    "version": "1.0",
+    "build": 1,
+    "date": 0
+}
