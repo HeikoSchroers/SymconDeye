@@ -1,0 +1,34 @@
+{
+    "elements": [
+        {
+            "type": "Label",
+            "caption": "Die Instanz hängt unter einem Solarman V5 Gateway (WLAN-Stick) oder einem ModBus Gateway (RS485). Adresse und Seriennummer stehen dort."
+        },
+        {
+            "type": "NumberSpinner",
+            "name": "Interval",
+            "caption": "Abfrage alle",
+            "suffix": "Sekunden",
+            "minimum": 2
+        },
+        {
+            "type": "NumberSpinner",
+            "name": "ZeroAfter",
+            "caption": "Leistung auf 0 nach",
+            "suffix": "Sekunden ohne Antwort",
+            "minimum": 0
+        },
+        {
+            "type": "Label",
+            "caption": "Nachts ist der Stick aus. Nach dieser Zeit ohne Antwort zeigen Leistung und Strom 0 statt der letzten Abendwerte. 0 schaltet das ab."
+        }
+    ],
+    "actions": [
+        {
+            "type": "Button",
+            "caption": "Jetzt lesen",
+            "onClick": "DEYE_Update($id);"
+        }
+    ],
+    "status": []
+}

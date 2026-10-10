@@ -1,0 +1,15 @@
+{
+    "id": "{CAA0055F-135C-4BCB-A952-D42190C25CEC}",
+    "name": "Solarman V5 Gateway",
+    "type": 2,
+    "vendor": "Solarman",
+    "aliases": ["Solarman Loggerstick", "Deye WLAN-Stick"],
+    "parentRequirements": ["{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"],
+    "childRequirements": ["{77B31ABB-18FA-4B91-BB63-E5B2AB5588F4}"],
+    "implemented": [
+        "{018EF6B5-AB94-40C6-AA53-46943E824ACF}",
+        "{E310B701-4AE7-458E-B618-EC13A1A6F6A8}"
+    ],
+    "prefix": "SOLARMAN",
+    "url": "https://github.com/HeikoSchroers/SymconDeye"
+}

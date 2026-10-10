@@ -1,0 +1,37 @@
+{
+    "elements": [
+        {
+            "type": "Label",
+            "caption": "Das Gateway verpackt Modbus-Anfragen im Solarman-V5-Rahmen des WLAN-Sticks. Adresse und Port (meist 8899) stehen im Client Socket darunter."
+        },
+        {
+            "type": "ValidationTextBox",
+            "name": "LoggerSerial",
+            "caption": "Seriennummer des Sticks",
+            "validate": "^[0-9]{1,10}$"
+        },
+        {
+            "type": "Label",
+            "caption": "Die Seriennummer steht auf dem Aufkleber des Sticks (nicht die des Wechselrichters). Der Stick beantwortet nur Anfragen mit seiner eigenen Nummer."
+        },
+        {
+            "type": "NumberSpinner",
+            "name": "DeviceID",
+            "caption": "Modbus-Geräte-ID",
+            "minimum": 1,
+            "maximum": 247
+        },
+        {
+            "type": "NumberSpinner",
+            "name": "Timeout",
+            "caption": "Wartezeit je Anfrage",
+            "suffix": "Sekunden",
+            "minimum": 1,
+            "maximum": 30
+        }
+    ],
+    "actions": [],
+    "status": [
+        { "code": 201, "icon": "error", "caption": "Seriennummer des Sticks fehlt oder ist ungültig" }
+    ]
+}
