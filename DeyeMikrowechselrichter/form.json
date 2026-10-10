@@ -2,7 +2,51 @@
     "elements": [
         {
             "type": "Label",
-            "caption": "Die Instanz hängt unter einem Solarman V5 Gateway (WLAN-Stick) oder einem ModBus Gateway (RS485). Adresse und Seriennummer stehen dort."
+            "caption": "Verbindung zum WLAN-Stick (meist Port 8899, Unit-ID 1). Gateway und Client Socket darüber stellt die Instanz selbst ein; dort nichts von Hand ändern."
+        },
+        {
+            "type": "RowLayout",
+            "items": [
+                {
+                    "type": "ValidationTextBox",
+                    "name": "Host",
+                    "caption": "Adresse (IP oder Hostname)"
+                },
+                {
+                    "type": "NumberSpinner",
+                    "name": "Port",
+                    "caption": "Port",
+                    "minimum": 1,
+                    "maximum": 65535
+                },
+                {
+                    "type": "NumberSpinner",
+                    "name": "DeviceID",
+                    "caption": "Unit-ID",
+                    "minimum": 1,
+                    "maximum": 247
+                }
+            ]
+        },
+        {
+            "type": "ValidationTextBox",
+            "name": "LoggerSerial",
+            "caption": "Seriennummer des WLAN-Sticks",
+            "validate": "^[0-9]{0,10}$"
+        },
+        {
+            "type": "Label",
+            "caption": "Die Seriennummer steht auf dem Aufkleber des Sticks (nicht die des Wechselrichters). Nur nötig hinter dem Solarman V5 Gateway; per RS485 am ModBus Gateway bleibt das Feld leer."
+        },
+        {
+            "type": "CheckBox",
+            "name": "Open",
+            "caption": "Verbindung aktiv"
+        },
+        {
+            "type": "Label",
+            "name": "LetzterAbruf",
+            "caption": "Letzter erfolgreicher Abruf: noch keiner"
         },
         {
             "type": "NumberSpinner",
@@ -26,9 +70,24 @@
     "actions": [
         {
             "type": "Button",
-            "caption": "Jetzt lesen",
-            "onClick": "DEYE_Update($id);"
+            "caption": "Verbindung testen",
+            "onClick": "DEYE_TestConnection($id);"
+        },
+        {
+            "type": "Label",
+            "caption": "Liest einmal alle Werte und zeigt das Ergebnis. Geänderte Felder vorher mit „Änderungen übernehmen“ speichern."
         }
     ],
-    "status": []
+    "status": [
+        {
+            "code": 201,
+            "icon": "error",
+            "caption": "Keine Adresse eingetragen"
+        },
+        {
+            "code": 202,
+            "icon": "error",
+            "caption": "Seriennummer des Sticks fehlt oder ist ungültig"
+        }
+    ]
 }

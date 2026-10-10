@@ -12,6 +12,8 @@ declare(strict_types=1);
  * UTF-8-kodiert, weil ein PHP-Modul keine rohen Bytes zurueckgeben kann.
  *
  * Darunter haengt ein Client Socket mit Adresse und Port des Sticks.
+ * Seriennummer, Geraete-ID, Adresse und Port traegt das Geraetemodul darueber
+ * ein (DeyeMikrowechselrichter, libs/VerbindungKette.php).
  *
  * Protokoll: https://pysolarmanv5.readthedocs.io/en/stable/solarmanv5_protocol.html
  *

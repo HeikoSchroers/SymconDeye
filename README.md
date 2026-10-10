@@ -28,12 +28,35 @@ Gerätemodul deshalb ebenso unter einem normalen ModBus Gateway.
    `https://github.com/HeikoSchroers/SymconDeye`
 2. Eine Instanz **Deye Mikrowechselrichter** anlegen. Symcon legt dazu ein
    **Solarman V5 Gateway** und einen **Client Socket** an.
-3. Im Gateway die Seriennummer des Sticks eintragen. Die Geräte-ID bleibt
-   meist 1.
-4. Im Client Socket die Adresse des Sticks und Port **8899** eintragen.
-5. In der Instanz das Abfrageintervall einstellen (Vorgabe 10 Sekunden).
+3. In der Instanz **Deye Mikrowechselrichter** eintragen:
+   - Adresse des Sticks
+   - Port **8899** und Unit-ID **1** (Vorgabe)
+   - Seriennummer des Sticks
+   - Abfrageintervall (Vorgabe 10 Sekunden)
+4. **Änderungen übernehmen**. Die Instanz trägt Seriennummer und Unit-ID ins
+   Gateway und Adresse und Port in den Client Socket ein.
 
-Im Modul selbst steht keine Adresse und keine Seriennummer.
+Hängt der Wechselrichter per RS485 an einem ModBus Gateway, bleibt die
+Seriennummer leer. Den Modus des ModBus Gateways (meist RTU over TCP) stellt
+die Instanz dann nicht ein; er bleibt im Gateway.
+
+Gateway und Client Socket werden **nicht** von Hand eingestellt. Die Instanz
+trägt ihre Werte selbst ein, und zwar nur, wenn sie abweichen. Ohne
+Abweichung werden Gateway und Socket nicht neu angewendet; die Verbindung
+bleibt dann bestehen. Im Gateway sind die Felder gesperrt, die von der
+Instanz kommen. Den Socket sperrt Symcon nicht. Was dort von Hand geändert
+wird, überschreibt die Instanz beim nächsten Speichern.
+
+**Verbindung testen** (unten im Formular) prüft Gateway und Socket und liest
+einmal alle Werte. Darüber steht, wann zuletzt erfolgreich gelesen wurde.
+
+### Umstieg von Version 1.0
+
+Bis 1.0 standen Adresse und Port im Client Socket, Seriennummer und
+Geräte-ID im Gateway. Nach dem Update übernimmt jede bestehende Instanz diese
+Werte einmalig in ihre eigenen Felder. Instanzen werden dabei nicht neu angelegt,
+Variablen und Archiv bleiben. Gateway und Socket werden nur angewendet, wenn
+ein Wert abweicht.
 
 ## Variablen
 
