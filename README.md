@@ -4,6 +4,13 @@ IP-Symcon-Bibliothek für **Deye-Mikrowechselrichter** (SUN-M-Reihe, z. B.
 MI 2000W, auch baugleiche Bosswerk-Geräte) mit WLAN-Loggerstick. Sie liest
 den Wechselrichter lokal aus, ohne Cloud.
 
+> 🙏 **Thanks to [Krzysztof Białek](https://github.com/kbialek) for
+> [deye-inverter-mqtt](https://github.com/kbialek/deye-inverter-mqtt) and to
+> [Jonathan McCrohan](https://github.com/jmccrohan) for
+> [pysolarmanv5](https://github.com/jmccrohan/pysolarmanv5).** Their register
+> map and protocol documentation made this library possible. The code here is
+> written independently.
+
 Die Bibliothek enthält zwei Module:
 
 | Modul | Art | Aufgabe |
