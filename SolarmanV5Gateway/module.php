@@ -8,8 +8,8 @@ declare(strict_types=1);
  *
  * Die Kinder sprechen dieselbe Schnittstelle wie mit dem ModBus Gateway von
  * IP-Symcon (DataID {E310B701-...}, Felder Function/Address/Quantity/Data)
- * und erhalten dieselbe Antwort: Funktionscode, Byteanzahl, Daten. Ein
- * Geraetemodul laeuft damit unveraendert unter beiden Gateways.
+ * und erhalten dieselbe Antwort: Funktionscode, Byteanzahl, Daten - nur
+ * UTF-8-kodiert, weil ein PHP-Modul keine rohen Bytes zurueckgeben kann.
  *
  * Darunter haengt ein Client Socket mit Adresse und Port des Sticks.
  *
@@ -98,7 +98,11 @@ class SolarmanV5Gateway extends IPSModule
             while (microtime(true) < $ende) {
                 $antwort = $this->GetBuffer('Antwort');
                 if ($antwort !== '') {
-                    return hex2bin($antwort);
+                    // Rohe Bytes kommen aus einem PHP-Modul nicht unversehrt
+                    // beim Kind an: IP-Symcon behandelt die Rueckgabe als
+                    // Text. Deshalb ausdruecklich als UTF-8 (jedes Byte ein
+                    // Zeichen); das Kind wandelt zurueck.
+                    return mb_convert_encoding(hex2bin($antwort), 'UTF-8', 'ISO-8859-1');
                 }
                 IPS_Sleep(20);
             }

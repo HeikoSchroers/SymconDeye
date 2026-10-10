@@ -182,6 +182,14 @@ class DeyeMikrowechselrichter extends IPSModule
         } finally {
             restore_error_handler();
         }
+        // Das Solarman V5 Gateway liefert die Antwort UTF-8-kodiert (aus PHP
+        // kommen keine rohen Bytes durch), das ModBus Gateway roh.
+        if (is_string($antwort) && !self::stimmig($antwort, $funktion) && mb_check_encoding($antwort, 'UTF-8')) {
+            $roh = mb_convert_encoding($antwort, 'ISO-8859-1', 'UTF-8');
+            if (self::stimmig($roh, $funktion)) {
+                $antwort = $roh;
+            }
+        }
         if (!is_string($antwort) || strlen($antwort) < 2) {
             $this->SendDebug('Modbus', sprintf('F%d %d/%d: %s', $funktion, $adresse, $anzahl, $fehler ?: 'keine Antwort'), 0);
             return null;
@@ -192,6 +200,18 @@ class DeyeMikrowechselrichter extends IPSModule
         }
         // Funktionscode, Byteanzahl, dann die Daten.
         return substr($antwort, 2);
+    }
+
+    /** Passt die Laenge zur Antwort auf eine Leseanfrage (bzw. Ausnahme)? */
+    private static function stimmig(string $a, int $funktion): bool
+    {
+        if (strlen($a) < 2) {
+            return false;
+        }
+        if (ord($a[0]) === ($funktion | 0x80)) {
+            return strlen($a) === 2;
+        }
+        return ord($a[0]) === $funktion && strlen($a) === 2 + ord($a[1]);
     }
 
     // ===================== Variablen =====================
