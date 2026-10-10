@@ -2,7 +2,7 @@
     "elements": [
         {
             "type": "Label",
-            "caption": "Das Gateway verpackt Modbus-Anfragen im Solarman-V5-Rahmen des WLAN-Sticks. Adresse und Port (meist 8899) stehen im Client Socket darunter."
+            "caption": "Das Gateway verpackt Modbus-Anfragen im Solarman-V5-Rahmen des WLAN-Sticks. Seriennummer und Geräte-ID trägt die Deye-Instanz darüber ein, Adresse und Port im Client Socket darunter ebenso. Hier nur die Wartezeit einstellen."
         },
         {
             "type": "ValidationTextBox",
@@ -32,6 +32,10 @@
     ],
     "actions": [],
     "status": [
-        { "code": 201, "icon": "error", "caption": "Seriennummer des Sticks fehlt oder ist ungültig" }
+        {
+            "code": 201,
+            "icon": "error",
+            "caption": "Seriennummer des Sticks fehlt oder ist ungültig"
+        }
     ]
 }

@@ -2,12 +2,16 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../libs/VerbindungKette.php';
+
 /**
  * Deye-Mikrowechselrichter (SUN-M-Reihe, z. B. MI 2000W) mit vier Eingaengen.
  *
  * Die Instanz haengt unter dem Solarman V5 Gateway dieser Bibliothek (WLAN-
  * Stick, Port 8899) oder unter einem ModBus Gateway von IP-Symcon, falls der
- * Wechselrichter per RS485 angebunden ist. Adressen stehen nur dort.
+ * Wechselrichter per RS485 angebunden ist. Adresse, Port, Unit-ID und die
+ * Seriennummer des Sticks stehen in dieser Instanz; sie traegt sie selbst in
+ * Gateway und Socket ein (libs/VerbindungKette.php).
  *
  * Registertabelle: kbialek/deye-inverter-mqtt, docs/metric_group_micro.md
  * (Apache-2.0; uebernommen sind nur Adressen und Faktoren, kein Code).
@@ -23,6 +27,10 @@ declare(strict_types=1);
  */
 class DeyeMikrowechselrichter extends IPSModule
 {
+    use \SymconDeye\VerbindungKette;
+
+    // Modus eines ModBus Gateways nicht anfassen: per RS485 ist es oft RTU.
+    private const VERBINDUNG = ['Port' => 8899, 'GatewayMode' => null, 'LoggerSerial' => true];
     private const SOLARMAN_GATEWAY = '{CAA0055F-135C-4BCB-A952-D42190C25CEC}';
     private const MODBUS_TX = '{E310B701-4AE7-458E-B618-EC13A1A6F6A8}';
 
@@ -48,6 +56,7 @@ class DeyeMikrowechselrichter extends IPSModule
         $this->RegisterPropertyInteger('Interval', 10);
         $this->RegisterPropertyInteger('ZeroAfter', 300);
         $this->RegisterTimer('Update', 0, 'DEYE_Update($_IPS[\'TARGET\']);');
+        $this->registriereVerbindung();
 
         $this->RequireParent(self::SOLARMAN_GATEWAY);
     }
@@ -58,7 +67,12 @@ class DeyeMikrowechselrichter extends IPSModule
 
         $this->registerVariables();
         $this->SetTimerInterval('Update', max(2, $this->ReadPropertyInteger('Interval')) * 1000);
-        $this->SetStatus(102);
+        $this->wendeVerbindungAn();
+    }
+
+    public function GetConfigurationForm()
+    {
+        return $this->formularMitVerbindung(__DIR__ . '/form.json');
     }
 
     // ===================== Oeffentliche Funktionen =====================
@@ -110,6 +124,12 @@ class DeyeMikrowechselrichter extends IPSModule
         $this->SetValue('STAND', time());
         $this->SetValue('STATUS', true);
         return true;
+    }
+
+    /** Fuer "Verbindung testen" (libs/VerbindungKette.php). */
+    private function hinweisOhneAntwort(): string
+    {
+        return 'Nachts ohne PV-Spannung ist der Stick aus. Tagsüber Adresse und Seriennummer des Sticks prüfen.';
     }
 
     // ===================== Lesen =====================
