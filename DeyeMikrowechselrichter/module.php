@@ -36,7 +36,6 @@ class DeyeMikrowechselrichter extends IPSModule
 
     // Darstellungen von IP-Symcon (/usr/share/symcon/presentations/)
     private const P_WERT = '{3319437D-7CDE-699D-750A-3C6A3841FA75}';
-    private const P_AUFZ = '{52D9E126-D7D2-2CBB-5E62-4CF7BA7C5D82}';
     private const P_ZEIT = '{497C4845-27FA-6E4F-AE37-5D951D3BDBF9}';
 
     private const BLOECKE = [[40, 40], [80, 40]];
@@ -245,7 +244,7 @@ class DeyeMikrowechselrichter extends IPSModule
             $this->registerVariable($ident, $name, $typ, $praes, $pos);
         };
 
-        $v('STATUS', 'Verbindung', 0, self::pAufz([0 => 'getrennt', 1 => 'verbunden'], 'Network'));
+        $v('STATUS', 'Verbindung', 0, self::pBool('getrennt', 'verbunden', 'Network'));
         $v('STAND', 'Letzte Aktualisierung', 1, self::pZeit());
 
         $v('AC_P', 'AC-Wirkleistung', 2, self::pWert(' W', 1, 'Lightning', 0, 2000));
@@ -292,13 +291,20 @@ class DeyeMikrowechselrichter extends IPSModule
                 'ICON' => $icon, 'MIN' => $min, 'MAX' => $max];
     }
 
-    private static function pAufz(array $optionen, string $icon): array
+    /**
+     * Feste Texte fuer Ja/Nein-Werte. Nicht die Darstellung "Aufzaehlung": Die
+     * verlangt eine Aktion an der Variable, und ohne Aktion zeigt die
+     * Kachel-Visualisierung ein rotes "Aus". Die Darstellung "Wert" kennt
+     * fuer Ja/Nein-Werte feste Texte.
+     */
+    private static function pBool(string $aus, string $an, string $icon): array
     {
         $o = [];
-        foreach ($optionen as $wert => $text) {
-            $o[] = ['Value' => $wert, 'Caption' => $text, 'IconActive' => false, 'IconValue' => '', 'Color' => -1];
+        foreach ([[false, $aus], [true, $an]] as [$wert, $text]) {
+            $o[] = ['Value' => $wert, 'Caption' => $text, 'IconActive' => false, 'IconValue' => '',
+                    'ColorActive' => false, 'ColorValue' => -1, 'ContentColorActive' => false, 'ContentColorValue' => -1];
         }
-        return ['PRESENTATION' => self::P_AUFZ, 'OPTIONS' => json_encode($o), 'ICON' => $icon, 'LAYOUT' => 0];
+        return ['PRESENTATION' => self::P_WERT, 'ICON' => $icon, 'OPTIONS' => json_encode($o)];
     }
 
     private static function pZeit(string $icon = 'Clock'): array
