@@ -181,6 +181,7 @@ class DeyeMikrowechselrichter extends IPSModule
     private function sendModbus(int $funktion, int $adresse, int $anzahl): ?string
     {
         if (!$this->HasActiveParent()) {
+            $this->weckeSocket();
             return null;
         }
         $fehler = '';
