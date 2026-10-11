@@ -27,7 +27,8 @@ namespace SymconDeye;
  *   'Port'         => Vorgabe fuer neue Instanzen
  *   'GatewayMode'  => Modus des ModBus Gateways (0 = Modbus TCP), null = nicht anfassen
  *   'LoggerSerial' => true, wenn das Geraet hinter einem Solarman V5 Gateway haengen kann
- * und implementiert hinweisOhneAntwort() und Update(): bool.
+ * und implementiert hinweisOhneAntwort() und Update(): bool. sendModbus() ruft
+ * weckeSocket() auf, wenn kein aktives Gateway da ist.
  *
  * Die Datei ist in SymconDeye, SymconSolakonONE und SymconMennekesAmtron
  * gleich, bis auf den Namensraum: Gleichnamige Traits zweier Bibliotheken
@@ -314,6 +315,45 @@ trait VerbindungKette
         if ($fehler !== '') {
             $this->SendDebug('Verbindung', sprintf('#%d: %s', $id, $fehler), 0);
         }
+    }
+
+    /**
+     * Baut den Client Socket neu auf, wenn er im Fehlerzustand haengt, hoechstens
+     * einmal je Minute. In sendModbus() aufrufen, wenn HasActiveParent() false
+     * liefert.
+     *
+     * Ein Socket, dessen Ziel beim Verbinden nicht erreichbar war (Status 200),
+     * versucht es nicht von selbst erneut. Der Solarman-Stick des Deye geht
+     * nachts mit dem Wechselrichter aus; ohne das blieb der Abruf am Morgen
+     * stehen, bis jemand die Instanz von Hand neu anwendete (11.10.2026).
+     */
+    private function weckeSocket(): void
+    {
+        [, $so] = $this->kette();
+        if ($so === 0 || !$this->ReadPropertyBoolean('Open') || trim($this->ReadPropertyString('Host')) === '') {
+            return;
+        }
+        if (IPS_GetInstance($so)['InstanceStatus'] < 200) {
+            return;
+        }
+        if (time() - (int) $this->GetBuffer('SocketVersuch') < 60) {
+            return;
+        }
+        $this->SetBuffer('SocketVersuch', (string) time());
+        $fehler = '';
+        set_error_handler(static function (int $nr, string $text) use (&$fehler): bool {
+            $fehler = $text;
+            return true;
+        });
+        try {
+            IPS_ApplyChanges($so);
+        } catch (\Throwable $e) {
+            $fehler = $e->getMessage();
+        } finally {
+            restore_error_handler();
+        }
+        $this->SendDebug('Verbindung', sprintf('#%d neu verbunden: %s', $so,
+            IPS_GetInstance($so)['InstanceStatus'] === 102 ? 'ok' : ($fehler ?: 'Status ' . IPS_GetInstance($so)['InstanceStatus'])), 0);
     }
 
     private function verbindungsStatus(): int
